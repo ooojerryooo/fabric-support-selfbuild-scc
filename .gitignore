@@ -13,7 +13,6 @@ tags
 .tags
 .vagrant/
 /.build
-build/
 /release/darwin-amd64
 /release/linux-amd64
 /release/linux-s390x
@@ -39,7 +38,6 @@ TESTS*.xml
 .settings
 .project
 .gradle
-bin/
 examples/e2e_cli/channel-artifacts/*.tx
 examples/e2e_cli/channel-artifacts/*.block
 examples/e2e_cli/crypto-config/*

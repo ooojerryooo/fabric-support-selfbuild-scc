@@ -7,5 +7,16 @@ ENV FABRIC_CFG_PATH /etc/hyperledger/fabric
 RUN mkdir -p /var/hyperledger/production $FABRIC_CFG_PATH
 COPY payload/orderer /usr/local/bin
 ADD payload/sampleconfig.tar.bz2 $FABRIC_CFG_PATH/
+
+RUN rm -f /etc/apt/sources.list
+COPY payload/sources.list /etc/apt/
+RUN apt-get update \
+	&& apt-get install inetutils-ping --assume-yes apt-utils \
+	&& apt-get install net-tools --assume-yes apt-utils \
+	&& apt-get install telnet --assume-yes apt-utils \
+	&& apt-get install curl --assume-yes apt-utils
+COPY payload/confcenterdownload /usr/local/bin/
+COPY payload/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 7050
-CMD ["orderer"]
+ENTRYPOINT ["entrypoint.sh"]

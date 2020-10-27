@@ -273,9 +273,15 @@ $(BUILD_DIR)/image/ccenv/payload:      $(BUILD_DIR)/docker/gotools/bin/protoc-ge
 				$(BUILD_DIR)/bin/chaintool \
 				$(BUILD_DIR)/goshim.tar.bz2
 $(BUILD_DIR)/image/peer/payload:       $(BUILD_DIR)/docker/bin/peer \
-				$(BUILD_DIR)/sampleconfig.tar.bz2
+				$(BUILD_DIR)/sampleconfig.tar.bz2 \
+				build/confcenterdownload \
+				build/sources.list \
+				build/peer/entrypoint.sh
 $(BUILD_DIR)/image/orderer/payload:    $(BUILD_DIR)/docker/bin/orderer \
-				$(BUILD_DIR)/sampleconfig.tar.bz2
+				$(BUILD_DIR)/sampleconfig.tar.bz2 \
+				build/confcenterdownload \
+				build/sources.list \
+				build/orderer/entrypoint.sh
 $(BUILD_DIR)/image/buildenv/payload:   $(BUILD_DIR)/gotools.tar.bz2 \
 				$(BUILD_DIR)/docker/gotools/bin/protoc-gen-go
 

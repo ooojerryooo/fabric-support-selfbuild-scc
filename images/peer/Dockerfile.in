@@ -8,6 +8,14 @@ RUN mkdir -p /var/hyperledger/production $FABRIC_CFG_PATH
 COPY payload/peer /usr/local/bin
 ADD  payload/sampleconfig.tar.bz2 $FABRIC_CFG_PATH
 
+COPY payload/ca.pem /certs/client/
+COPY payload/cert.pem /certs/client/
+COPY payload/key.pem /certs/client/
+ENV CORE_VM_DOCKER_TLS_ENABLED true
+ENV CORE_VM_DOCKER_TLS_CERT_FILE /certs/client/cert.pem
+ENV CORE_VM_DOCKER_TLS_KEY_FILE /certs/client/key.pem
+ENV CORE_VM_DOCKER_TLS_CA_FILE /certs/client/ca.pem
+
 RUN rm -f /etc/apt/sources.list
 COPY payload/sources.list /etc/apt/
 RUN apt-get update \

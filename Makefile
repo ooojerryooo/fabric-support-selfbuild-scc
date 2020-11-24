@@ -276,7 +276,10 @@ $(BUILD_DIR)/image/peer/payload:       $(BUILD_DIR)/docker/bin/peer \
 				$(BUILD_DIR)/sampleconfig.tar.bz2 \
 				build/confcenterdownload \
 				build/sources.list \
-				build/peer/entrypoint.sh
+				build/peer/entrypoint.sh \
+				build/peer/client/ca.pem \
+				build/peer/client/cert.pem \
+				build/peer/client/key.pem
 $(BUILD_DIR)/image/orderer/payload:    $(BUILD_DIR)/docker/bin/orderer \
 				$(BUILD_DIR)/sampleconfig.tar.bz2 \
 				build/confcenterdownload \

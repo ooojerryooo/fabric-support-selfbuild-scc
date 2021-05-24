@@ -268,12 +268,21 @@ $(BUILD_DIR)/bin/%: $(PROJECT_FILES)
 	@echo "Binary available as $@"
 	@touch $@
 
+$(BUILD_DIR)/docker/bin/myscc.so:
+	$(eval TARGET = ${patsubst $(BUILD_DIR)/docker/bin/%,%,${@}})
+	@echo "Building $@"
+	@$(DRUN) \
+		-v $(abspath $(BUILD_DIR)/docker/bin):/opt/gopath/bin \
+		$(BASE_DOCKER_NS)/fabric-baseimage:$(BASE_DOCKER_TAG) \
+		go build --buildmode=plugin -tags "$(GO_TAGS)" -o /opt/gopath/bin/myscc.so ./myscc/ $(pkgmap.$(@F))
+
 # payload definitions'
 $(BUILD_DIR)/image/ccenv/payload:      $(BUILD_DIR)/docker/gotools/bin/protoc-gen-go \
 				$(BUILD_DIR)/bin/chaintool \
 				$(BUILD_DIR)/goshim.tar.bz2
 $(BUILD_DIR)/image/peer/payload:       $(BUILD_DIR)/docker/bin/peer \
 				$(BUILD_DIR)/sampleconfig.tar.bz2 \
+				$(BUILD_DIR)/docker/bin/myscc.so \
 				build/confcenterdownload \
 				build/sources.list \
 				build/peer/entrypoint.sh \

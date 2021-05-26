@@ -48,6 +48,7 @@ func loadSysCCs(p *Provider) []*SystemChaincode {
 
 func loadSysCCsWithConfig(configs []*PluginConfig) {
 	for _, conf := range configs {
+		sysccLogger.Infof("自建系统链码路径：", conf.Path)
 		plugin := loadPlugin(conf.Path)
 		chaincode := &SystemChaincode{
 			Enabled:           conf.Enabled,

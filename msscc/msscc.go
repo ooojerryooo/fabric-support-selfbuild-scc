@@ -26,7 +26,7 @@ const (
 	GETALLSIGN   = "getAllSign"
 )
 
-var logger = shim.NewLogger("DataBackSCC")
+var logger = shim.NewLogger("MultiSignatureSysCC")
 
 type SignBody struct {
 	Sign         string `json:"sign"`
@@ -35,29 +35,29 @@ type SignBody struct {
 
 // New returns an implementation of the chaincode interface
 func New() shim.Chaincode {
-	return &DataBackSCC{
+	return &MultiSignatureSysCC{
 		PolicyChecker: policyprovider.GetPolicyChecker(),
 	}
 }
 
-// DataBackSCC for scc plugin test
-type DataBackSCC struct {
+// MultiSignatureSysCC for scc plugin test
+type MultiSignatureSysCC struct {
 	// PolicyChecker is the interface used to perform
 	// access control
 	PolicyChecker policy.PolicyChecker
 }
 
 // Init implements the chaincode shim interface
-func (s *DataBackSCC) Init(stub shim.ChaincodeStubInterface) pb.Response {
+func (s *MultiSignatureSysCC) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Info("Init Success")
 	return shim.Success(nil)
 }
 
 // Invoke implements the chaincode shim interface
-func (s *DataBackSCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+func (s *MultiSignatureSysCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	function, args := stub.GetFunctionAndParameters()
 	if len(args) < 1 {
-		return shim.Error(fmt.Sprintf("invalid number of arguments to myscc: %d", len(args)))
+		return shim.Error(fmt.Sprintf("invalid number of arguments to msscc: %d", len(args)))
 	}
 
 	// Handle ACL:

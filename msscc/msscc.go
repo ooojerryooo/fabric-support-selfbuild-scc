@@ -15,6 +15,7 @@ import (
 	"github.com/hyperledger/fabric/protos/msp"
 	pb "github.com/hyperledger/fabric/protos/peer"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -28,9 +29,21 @@ const (
 
 var logger = shim.NewLogger("MultiSignatureSysCC")
 
+type ChangeRequest struct {
+	ChannelId    string    `json:"channel_id"`    //baas平台业务链ID
+	ChangePB     string    `json:"change_pb"`     //配置变更文件（十六进制字符串）
+	SignCount    int       `json:"sign_count"`    //已签名数
+	OrgSum       int       `json:"org_sum"`       //业务链机构数
+	State        int       `json:"state"`         //请求状态(0:未完成1:已完成)
+	Organization string    `json:"organization"`  //机构MSPId
+	CreateTime   time.Time `json:"create_time"`   //创建时间
+	CompleteTime time.Time `json:"complete_time"` //完成时间
+}
+
 type SignBody struct {
-	Sign         string `json:"sign"`
-	Organization string `json:"organization"`
+	Sign         string    `json:"sign"`         //签名信息（十六进制字符串）
+	Organization string    `json:"organization"` //机构MSPId
+	SignTime     time.Time `json:"sign_time"`    //签名时间
 }
 
 // New returns an implementation of the chaincode interface
@@ -96,13 +109,35 @@ func (s *MultiSignatureSysCC) Invoke(stub shim.ChaincodeStubInterface) pb.Respon
 
 // 储存变更文件pb，pb以base64格式存储
 func sendChangePB(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	//键值：待配置的通道code加16位随机数，例：yychannel_123456789987654321
 	key := stub.GetChannelID() + "_" + CreateCaptcha()
-	err := stub.PutState(key, []byte(args[0]))
+	//获取提交者MSP信息
+	mspId := (&msp.SerializedIdentity{}).GetMspid()
+	orgsum, _ := strconv.Atoi(args[2])
+	//构建配置变更数据
+	cr := &ChangeRequest{
+		ChannelId:    args[0],
+		ChangePB:     args[1],
+		SignCount:    1,
+		OrgSum:       orgsum,
+		State:        0,
+		Organization: mspId,
+		CreateTime:   time.Now(),
+		CompleteTime: nil,
+	}
+	crJson, err := json.Marshal(cr)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Parse failure to ChangeRequest : %v", cr))
+	}
+	err = stub.PutState(key, crJson)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("Failed to sendChangePB : %s", args[0]))
 	}
-	fmt.Println("发送通道变更pb：", args[0])
-	return shim.Success([]byte(key))
+	//设置配置变更Event事件，Baas平台监听到此事件后获得配置变更数据
+	eventKey := "config_event_" + stub.GetChannelID()
+	stub.SetEvent(eventKey, crJson)
+	//返回构建的配置变更数据
+	return shim.Success(crJson)
 }
 
 //获取该通道所有变更列表
